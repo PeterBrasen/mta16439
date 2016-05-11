@@ -1,15 +1,14 @@
 #include <Wire.h>
-//#include <SoftwareSerial.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
 
 // Volatile Variables, used in the interrupt service routine!
-volatile int BPM;                   // int that holds raw Analog in 0. updated every 2mS
-volatile int Signal;                // holds the incoming raw data
-volatile int IBI = 600;             // int that holds the time interval between beats! Must be seeded!
-volatile boolean Pulse = false;     // "True" when User's live heartbeat is detected. "False" when not a "live beat".
-volatile boolean QS = false;        // becomes true when Arduoino finds a beat.
+volatile int BPM;                   // raw Analog in 0. updated every 2mS
+volatile int Signal;                // raw data
+volatile int IBI = 600;             // time intervals between beats
+volatile boolean Pulse = false;    
+volatile boolean QS = false;        // Heartbeat failsafe boolean
 boolean knapTryk = false;
 int pulsePin = 0;
 int ledPin = 13;
@@ -25,7 +24,6 @@ void displaySensorDetails(void){
   bno.getSensor(&sensor);
   delay(500);
 }
-
 
 void setup() {
   Serial.begin(9600); // Baud-rate for Bluetooth connection.
@@ -50,7 +48,7 @@ void loop() {
   }
   sensors_event_t event;
   bno.getEvent(&event);
-  Serial.print("A ");   //Printing the heading
+  Serial.print("A ");   //Print the heading
   Serial.print((int)event.orientation.x);
   Serial.print(" ");
   delay(BNO055_SAMPLERATE_DELAY_MS);
@@ -58,7 +56,7 @@ void loop() {
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH && knapTryk == false) {
     digitalWrite(ledPin, HIGH);
-   Serial.print("C "); //Printing the Click
+   Serial.print("C "); //Print the Click
     knapTryk = true;
   } else if (buttonState == LOW) {
     digitalWrite(ledPin, LOW);
